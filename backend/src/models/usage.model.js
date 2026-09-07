@@ -13,7 +13,7 @@ async function getUsageSummary(userId, { days = 30 } = {}) {
   const result = await pool.query(
     `SELECT metric, DATE_TRUNC('day', recorded_at) AS day, SUM(value) AS total
      FROM usage_events
-     WHERE user_id = $1 AND recorded_at >= NOW() - ($2 || ' days')::INTERVAL
+     WHERE user_id = $1 AND recorded_at >= NOW() - ($2 * INTERVAL '1 day')
      GROUP BY metric, day ORDER BY day ASC`,
     [userId, days]
   );
@@ -24,7 +24,7 @@ async function getPlatformUsageSummary({ days = 30 } = {}) {
   const result = await pool.query(
     `SELECT metric, DATE_TRUNC('day', recorded_at) AS day, SUM(value) AS total, COUNT(DISTINCT user_id) AS active_users
      FROM usage_events
-     WHERE recorded_at >= NOW() - ($1 || ' days')::INTERVAL
+     WHERE recorded_at >= NOW() - ($1 * INTERVAL '1 day')
      GROUP BY metric, day ORDER BY day ASC`,
     [days]
   );
